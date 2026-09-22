@@ -25,6 +25,19 @@ A plain LLM call answers from the current conversation only. Close the session a
                     Semantic     Episodic      Procedural
 ```
 
+## The three types of memory
+
+- **Semantic memory** - general, durable facts and preferences about a customer, detached from any specific occasion. "Prefers lightweight running shoes." It doesn't matter when or how this was learned; it's a standing truth stated the same way regardless of context.
+- **Episodic memory** - a specific past event with a concrete outcome, tied to real data (an order). "Bought the Nike Pegasus, returned it, felt too narrow." A single instance you can point back to, not a generalization.
+- **Procedural memory** - a stored, step-by-step process for how the agent should carry out a task, not a fact about any one customer. Global rather than per-customer, and revisable based on feedback about the process itself.
+
+**Semantic and episodic memory look similar at first** - both are "things the agent remembers about a customer" - but they answer different questions and are built differently on purpose:
+
+- Semantic memory is a **distilled generalization**: it collapses everything down into one standing statement, with no reference to a specific product, order, or date. It comes from the customer directly declaring something about themselves, and the agent writes it explicitly because it judged the statement durable.
+- Episodic memory is a **specific instance with an outcome**, tied to a real `order_id`, a real product, a real point in time. It is not generalized or restated - it is derived automatically from something that actually happened in the system (a return), without the agent ever deciding "this is worth remembering."
+
+The practical difference shows up in what the agent can say. Semantic memory alone could only distill "returned the Pegasus because it felt narrow" into something vague like *"prefers wider-fitting shoes"* - true, but it loses the specific, checkable evidence. Episodic memory lets the agent say *"you tried the Pegasus before and it ran narrow on you"* - a concrete claim tied to a real past event, which is both more persuasive and more actionable. The two can even point in different directions at once: semantic memory might say a customer generally likes Nike, while an episodic memory flags one specific Nike model that didn't work out for them - a good agent uses both together rather than collapsing them into a single fact.
+
 ## Architecture
 
 - **LLM**: Claude (`claude-haiku-4-5`) via the Anthropic Messages API
