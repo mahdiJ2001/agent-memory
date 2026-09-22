@@ -125,7 +125,3 @@ src/agent_memory/
   db.py               schema, seed data, all SQL
 docker-compose.yml     Postgres + pgvector
 ```
-
-## What this project intentionally leaves out
-
-There is no unified "end of conversation, decide what to remember across all three memory types at once" pass - each memory type here has its own explicit trigger (a tool call or a real event), which is more transparent for learning purposes even if less automatic than a single extraction step would be. There is no authentication, no payments, and no real e-commerce infrastructure - the product layer exists only to give the memory system something concrete to be useful about.
