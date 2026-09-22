@@ -6,6 +6,8 @@ A small shopping assistant built to demonstrate, side by side, what memory actua
 
 This is a learning project. The product (a tiny shoe store with products, customers, and orders) is deliberately minimal; the point is the agent harness and its memory system, not the e-commerce logic.
 
+An **agent harness** is the orchestration layer sitting between the user and the raw LLM: it builds the prompt, decides what context to inject, calls the model, executes any tools the model requests, feeds results back, and repeats until there's a final answer. The LLM itself is stateless and has no memory of its own - everything this project calls "memory" is state that the harness manages and re-injects into context on the LLM's behalf.
+
 ## The core question
 
 A plain LLM call answers from the current conversation only. Close the session and everything is gone - preferences you stated, things that happened, lessons learned. This project builds an agent harness around a base LLM and adds three kinds of memory on top of it, then demonstrates the value of each one with a controlled before/after comparison: identical customer, identical question, only the memory system toggled.
