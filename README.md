@@ -1,6 +1,6 @@
 # Agent Memory
 
-![Architecture diagram](architecture-diagram.png)
+![Architecture diagram](images/architecture-diagram.png)
 
 A small shopping assistant built to demonstrate, side by side, what memory actually adds to an LLM agent. The same agent, the same tools, the same model - run once with memory disabled and once with memory enabled - to make the difference observable rather than theoretical.
 
@@ -27,16 +27,11 @@ A plain LLM call answers from the current conversation only. Close the session a
 
 ## The three types of memory
 
-- **Semantic memory** - general, durable facts and preferences about a customer, detached from any specific occasion. "Prefers lightweight running shoes." It doesn't matter when or how this was learned; it's a standing truth stated the same way regardless of context.
-- **Episodic memory** - a specific past event with a concrete outcome, tied to real data (an order). "Bought the Nike Pegasus, returned it, felt too narrow." A single instance you can point back to, not a generalization.
-- **Procedural memory** - a stored, step-by-step process for how the agent should carry out a task, not a fact about any one customer. Global rather than per-customer, and revisable based on feedback about the process itself.
+- **Semantic memory** - general, durable facts/preferences about a customer, detached from any specific occasion. E.g. "Prefers lightweight running shoes."
+- **Episodic memory** - a specific past event with a concrete outcome, tied to real data (an order). E.g. "Bought the Nike Pegasus, returned it, felt too narrow."
+- **Procedural memory** - a global, step-by-step process for how the agent should carry out a task, not tied to any one customer, and revisable from feedback.
 
-**Semantic and episodic memory look similar at first** - both are "things the agent remembers about a customer" - but they answer different questions and are built differently on purpose:
-
-- Semantic memory is a **distilled generalization**: it collapses everything down into one standing statement, with no reference to a specific product, order, or date. It comes from the customer directly declaring something about themselves, and the agent writes it explicitly because it judged the statement durable.
-- Episodic memory is a **specific instance with an outcome**, tied to a real `order_id`, a real product, a real point in time. It is not generalized or restated - it is derived automatically from something that actually happened in the system (a return), without the agent ever deciding "this is worth remembering."
-
-The practical difference shows up in what the agent can say. Semantic memory alone could only distill "returned the Pegasus because it felt narrow" into something vague like *"prefers wider-fitting shoes"* - true, but it loses the specific, checkable evidence. Episodic memory lets the agent say *"you tried the Pegasus before and it ran narrow on you"* - a concrete claim tied to a real past event, which is both more persuasive and more actionable. The two can even point in different directions at once: semantic memory might say a customer generally likes Nike, while an episodic memory flags one specific Nike model that didn't work out for them - a good agent uses both together rather than collapsing them into a single fact.
+Semantic and episodic memory can look similar, but semantic is a **distilled generalization** ("prefers wider shoes"), while episodic is a **specific, checkable instance** ("returned the Pegasus, too narrow") - the latter is more concrete and persuasive, and the two can even point in different directions at once (generally likes Nike, but this one Nike model didn't work out).
 
 ## Architecture
 
@@ -55,21 +50,21 @@ Semantic memory holds durable facts and preferences about a customer, independen
 
 **Without memory** - the agent is told the customer's running distance and favorite shoe, but the moment the session ends, that information is gone:
 
-![No memory: preferences stated](Nomemory.png)
+![No memory: preferences stated](images/Nomemory.png)
 
-![No memory: asked again in a new session, agent has no idea](nomemory2.png)
+![No memory: asked again in a new session, agent has no idea](images/nomemory2.png)
 
 **With memory** - the same preferences are stated once:
 
-![With memory: preferences stated](semanticmemory1.png)
+![With memory: preferences stated](images/semanticmemory1.png)
 
 ...and correctly recalled in a brand new session, without the customer repeating anything:
 
-![With memory: recalled correctly in a new session](semanticmemory2.png)
+![With memory: recalled correctly in a new session](images/semanticmemory2.png)
 
 The underlying `semantic_memories` table in Postgres, holding the embedded rows that made this possible:
 
-![semantic_memories table](semanticmemorypg.png)
+![semantic_memories table](images/semanticmemorypg.png)
 
 ## Episodic memory
 
@@ -80,19 +75,19 @@ Episodic memory holds specific past events and their outcomes, tied to real data
 
 The customer buys a Nike Pegasus, then returns it because it felt too narrow:
 
-![Ordering then returning the Nike Pegasus](episodic1.png)
+![Ordering then returning the Nike Pegasus](images/episodic1.png)
 
 **Without memory**, asked for running shoe recommendations afterward, the agent still suggests the Nike Pegasus again - it has no record the return ever happened:
 
-![No memory: Pegasus recommended again despite the return](episodic2.png)
+![No memory: Pegasus recommended again despite the return](images/episodic2.png)
 
 **With memory**, the same request retrieves the episode and the agent avoids repeating the mistake, steering toward a wider-fitting alternative instead:
 
-![With memory: Pegasus is not recommended again](episodic3.png)
+![With memory: Pegasus is not recommended again](images/episodic3.png)
 
 The underlying `episodic_memories` table, holding the order return that was recorded automatically:
 
-![episodic_memories table](pgepisodic.png)
+![episodic_memories table](images/pgepisodic.png)
 
 ## Procedural memory
 
@@ -111,11 +106,11 @@ The seeded procedure for recommending running shoes:
 
 The agent following those steps - asking before recommending, rather than guessing:
 
-![Agent following the stored procedure](proceduralmemory.png)
+![Agent following the stored procedure](images/proceduralmemory.png)
 
 The `procedures` table in Postgres, holding the steps as they currently stand:
 
-![procedures table](preceduralPg.png)
+![procedures table](images/preceduralPg.png)
 
 Note step 1 and step 2 are conditioned on "if not already known" - procedural memory is written to defer to semantic memory rather than operate in isolation. If a customer already has their distance and preference stored as facts, the procedure correctly skips asking again. The memory types compose; they are not siloed.
 
