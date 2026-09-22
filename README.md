@@ -48,7 +48,7 @@ Semantic and episodic memory can look similar, but semantic is a **distilled gen
 Semantic memory holds durable facts and preferences about a customer, independent of any specific event - the kind of thing that stays true across many conversations.
 
 - **Writing**: model-driven. The agent has a `remember_user_fact` tool and decides on its own, the same way it decides to call any tool, when something the customer says is worth keeping.
-- **Reading**: harness-driven. Before every message reaches the model, the harness embeds it, searches `semantic_memories` in pgvector for that customer's closest facts, and prepends them to the message as a `[Known facts about this customer]` block. The model never asks for this - it just appears in context.
+- **Reading**: harness-driven. Before every message reaches the model, the harness embeds it, searches `semantic_memories` in pgvector for that customer's closest facts, and prepends them to the message as a `[Known facts about this customer]` block. The model never asks for this - it just appears in context. This is a standard RAG (retrieval-augmented generation) pipeline - embed the query, vector-search a knowledge store, inject the results into the prompt - just applied to per-customer facts instead of a document corpus. Episodic memory retrieval below uses the exact same mechanism.
 
 **Without memory** - the agent is told the customer's running distance and favorite shoe, but the moment the session ends, that information is gone:
 
